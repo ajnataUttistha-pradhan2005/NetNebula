@@ -8,9 +8,8 @@ const SplashScreen = ({ onComplete }) => {
   useEffect(() => {
     const texts = [
       'Synchronizing Neural Pathways...',
-      'Inference Engine Warming...',
       'Deep Correlation Mapping...',
-      'EtherMind Intelligence Live.'
+      'NetNebula Intelligence Live.'
     ];
 
     let current = 0;
@@ -59,7 +58,7 @@ const SplashScreen = ({ onComplete }) => {
           <div className="absolute inset-2 border-2 border-primary/40 rounded-full animate-pulse" />
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-16 h-16 bg-primary rounded-lg rotate-45 flex items-center justify-center shadow-[0_0_30px_#99f7ff]">
-              <span className="text-background font-space text-3xl font-black -rotate-45">E</span>
+              <span className="text-background font-space text-3xl font-black -rotate-45">N</span>
             </div>
           </div>
         </motion.div>
@@ -71,7 +70,7 @@ const SplashScreen = ({ onComplete }) => {
           transition={{ delay: 0.5, duration: 0.8 }}
           className="font-space text-5xl font-black tracking-[0.3em] text-white mb-2 uppercase"
         >
-          Ether<span className="text-primary glow-text">Mind</span>
+          Net<span className="text-primary glow-text">Nebula</span>
         </motion.h1>
         <motion.p 
           initial={{ opacity: 0 }}
@@ -124,7 +123,7 @@ const SplashScreen = ({ onComplete }) => {
       {/* Decorative HUD Elements */}
       <div className="absolute bottom-12 left-12 flex flex-col gap-1 opacity-20 font-mono text-[8px]">
         <span>REGION: GLOBAL_CLUSTER_01</span>
-        <span>AUTH: PROTOCOL_ETHER_V4</span>
+        <span>AUTH: PROTOCOL_NEBULA_V2</span>
       </div>
       <div className="absolute top-12 right-12 flex flex-col gap-1 opacity-20 font-mono text-[8px] text-right">
         <span>STABILITY: OPTIMAL</span>

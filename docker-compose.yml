@@ -1,42 +1,47 @@
-version: '3.8'
-
 services:
   mongodb:
     image: mongo:latest
-    ports:
-      - "27017:27017"
+    container_name: netnebula-mongodb
     volumes:
       - mongodb_data:/data/db
-    restart: unless-stopped
+    networks:
+      - netnebula-network
 
   ollama:
     image: ollama/ollama:latest
-    ports:
-      - "11434:11434"
+    container_name: netnebula-ollama
     volumes:
       - ollama_data:/root/.ollama
-    restart: unless-stopped
+    networks:
+      - netnebula-network
 
   backend:
     build: ./backend
+    container_name: netnebula-backend
     ports:
       - "3001:3001"
     environment:
-      - NODE_ENV=production
-      - MONGO_URI=mongodb://mongodb:27017/ethermind
+      - MONGO_URI=mongodb://mongodb:27017/netnebula
       - OLLAMA_URL=http://ollama:11434
     depends_on:
       - mongodb
       - ollama
-    restart: unless-stopped
+    networks:
+      - netnebula-network
 
   frontend:
     build: ./frontend
+    container_name: netnebula-frontend
     ports:
       - "80:80"
     depends_on:
       - backend
-    restart: unless-stopped
+    networks:
+      - netnebula-network
+
+networks:
+  netnebula-network:
+    driver: bridge
 
 volumes:
   mongodb_data:

@@ -59,7 +59,16 @@ const ConnectionCard = ({ correlation }) => {
                         </p>
                       ))
                     ) : (
-                      <p>Tactical analysis for this correlation is currently being processed by the inference engine. Preliminary data suggests a high-probability semantic linkage based on shared vector overlaps.</p>
+                      <div className="flex flex-col items-center justify-center py-6 gap-4 opacity-70">
+                        <div className="flex gap-2">
+                           <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                           <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                           <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce"></div>
+                        </div>
+                        <p className="text-[10px] font-mono uppercase tracking-[0.2em] animate-pulse">
+                          Neural Inference Engine Processing Tactical Briefing...
+                        </p>
+                      </div>
                     )}
                   </div>
                </div>

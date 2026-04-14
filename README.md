@@ -1,28 +1,23 @@
-# EtherMind - Cyberpunk Intelligence System
+# NetNebula: Quantum Intelligence Cockpit
 
-A real-time cyberpunk intelligence system visualizing global digital activity as a living neural network. Monitors Reddit and crypto topics for spikes and correlations in real-time.
+NetNebula is a high-fidelity, real-time neural intelligence cockpit designed to visualize and analyze global semantic relationships.
 
-## Tech Stack
-* **Frontend**: React (Vite), TailwindCSS 3+ (Glassmorphism & Neon design), Framer Motion, Three.js (@react-three/fiber), Recharts.
-* **Backend**: Node.js + Express, Axios for data polling.
-* **Deployment**: Docker & Docker Compose.
+## 🚀 Vision
+Turn raw internet data into clear visual intelligence.
+Detect trending narratives, identify hidden correlations, and monitor systematic anomalies across global data clusters.
 
-## How to Run
-Ensure Docker Desktop is running on your machine.
+## 🛠 Features
+- **3D Neural Field**: Interactive Force-Directed 3D graph of global signals.
+- **Synaptic Correlation Engine**: ML-driven (TF-IDF + Cosine Similarity) relationship detection.
+- **Tactical Briefings**: AI-generated reports for every major trend and connection.
+- **Source Traceability**: 100% link integrity to original data sources (Reddit, HackerNews, CoinGecko).
+- **Anomaly Detection**: Real-time monitoring for high-momentum signal surges.
 
-1. Open a terminal in this directory.
-2. Run the following command:
-   ```bash
-   docker-compose up --build
-   ```
-3. Open your browser and navigate to `http://localhost`.
+## 📦 Deployment
+```bash
+docker-compose up --build -d
+```
+Access the dashboard at `http://localhost`.
 
-## Architecture & Features
-* **Neural Field (3D)**: Interactive full-screen neural visualization representing intelligence nodes and correlation links.
-* **Data Ingestion**: Polling `reddit.com/r/all/new.json` and CoinGecko simple price API every 8 seconds.
-* **Anomaly Engine**: Detects spikes in attention or volatility compared to moving historical averages.
-* **Correlation Intelligence Engine**: Detects synchronized patterns across disparate streams (e.g., Crypto spikes aligned with AI discussions) and highlights them in the Insight Panel.
-* **Live Feed**: A real-time, glitchy terminal feed displaying intelligence signals as they enter the stream.
-
-## System Reset
-The memory buffers retain up to 100 historical signals to keep performance ultra-fast. To clear system memory, simply restart the backend container.
+---
+*NetNebula Version 2.4.1 | Autonomous Neural Interface*

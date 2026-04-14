@@ -1,22 +1,25 @@
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { Activity, AlertTriangle, Zap, Network, TrendingUp, TrendingDown, ExternalLink } from 'lucide-react';
+import { Activity, AlertTriangle, Zap, Network, TrendingUp, TrendingDown, ExternalLink, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const CLUSTER_CONFIG = {
-  0: { name: "AI & SYNTHETIC", color: '#99f7ff' },
-  1: { name: "DECENTRALIZED", color: '#2ff801' },
-  2: { name: "SOCIAL PULSE", color: '#ff7073' },
-  3: { name: "GLOBAL NEWS", color: '#00f1fe' },
-  4: { name: "CYBERSECURITY", color: '#ff00ff' },
-  5: { name: "QUANTUM / BIO", color: '#ffff00' }
+  0: { name: "AI & SYNTHETIC", color: '#00fbff' },
+  1: { name: "DECENTRALIZED", color: '#39ff14' },
+  2: { name: "SOCIAL PULSE", color: '#ff003c' },
+  3: { name: "GLOBAL SYSTEMS", color: '#ffae00' },
+  4: { name: "CYBERSECURITY", color: '#bc13fe' },
+  5: { name: "QUANTUM / BIO", color: '#ff00ff' }
 };
 
-const KPICard = ({ title, value, icon: Icon, colorClass, url }) => {
+const KPICard = ({ title, value, icon: Icon, colorClass, url, tooltip }) => {
   const CardContent = (
-    <div className="glass-panel p-4 flex items-center justify-between relative overflow-hidden group hover:bg-white/5 transition-all duration-300">
+    <div className="glass-panel p-4 flex items-center justify-between relative overflow-hidden group hover:bg-white/5 transition-all duration-300" title={tooltip}>
       <div className="z-10 relative">
-        <h3 className="text-gray-400 font-mono text-[10px] uppercase tracking-widest">{title}</h3>
+        <h3 className="text-gray-400 font-mono text-[10px] uppercase tracking-widest flex items-center gap-2">
+          {title}
+          <Info size={10} className="text-gray-600 group-hover:text-primary transition-colors" />
+        </h3>
         <div className={`text-2xl font-space font-bold mt-1 ${colorClass}`}>{value}</div>
       </div>
       <Icon className={`w-8 h-8 opacity-20 group-hover:opacity-100 transition-opacity duration-500 ${colorClass}`} />
@@ -64,7 +67,7 @@ export default function Dashboard({ stats, signals, mini }) {
       <div className="flex flex-col gap-4 p-4 z-10 hidden-scrollbar glass-panel rounded-lg w-full">
         <div className="flex items-center gap-2 mb-1">
           <div className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_8px_#99f7ff]"></div>
-          <h1 className="font-space text-lg uppercase tracking-widest text-primary glow-text">EtherMind</h1>
+          <h1 className="font-space text-lg uppercase tracking-widest text-primary glow-text">NetNebula</h1>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <div className="flex flex-col"><span className="text-[10px] text-gray-400 font-mono">Signals</span><span className="text-primary font-space font-bold">{stats.totalSignalsProcessed}</span></div>
@@ -84,10 +87,10 @@ export default function Dashboard({ stats, signals, mini }) {
       </div>
 
       <div className="grid grid-cols-4 gap-4 w-full max-w-5xl mx-auto mt-4">
-        <KPICard title="Live Nodes" value={stats.totalSignalsProcessed} icon={Activity} colorClass="text-primary glow-text" />
-        <KPICard title="Total Alerts" value={stats.anomalyCount} icon={AlertTriangle} colorClass="text-error glow-text" />
-        <KPICard title="Global Pulse" value={stats.topTrending} icon={Zap} colorClass="text-secondary glow-text" url={stats.trends && stats.trends[0]?.url} />
-        <KPICard title="Net Connections" value={stats.correlationCount} icon={Network} colorClass="text-primary_container glow-text" />
+        <KPICard title="Live Nodes" value={stats.totalSignalsProcessed} icon={Activity} colorClass="text-primary glow-text" tooltip="Active units of intelligence currently in memory." />
+        <KPICard title="Total Alerts" value={stats.anomalyCount} icon={AlertTriangle} colorClass="text-error glow-text" tooltip="Sudden surges in attention that breach the normal baseline." />
+        <KPICard title="Global Pulse" value={stats.topTrending} icon={Zap} colorClass="text-secondary glow-text" url={stats.trends && stats.trends[0]?.url} tooltip="The most dominant narrative in the current network state." />
+        <KPICard title="Net Connections" value={stats.correlationCount} icon={Network} colorClass="text-primary_container glow-text" tooltip="Hidden mathematical links between disparate topics detected via semantic clustering." />
       </div>
 
       <div className="glass-panel p-6 mt-4 w-full max-w-5xl mx-auto rounded-lg">
@@ -95,7 +98,7 @@ export default function Dashboard({ stats, signals, mini }) {
           Signal Velocity Timeline
           <span className="text-[9px] text-gray-600">(Real-time ingestion rate of global intelligence packets)</span>
         </h3>
-        <div className="h-48 w-full">
+        <div className="h-48 w-full min-h-[192px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={volumeData}>
               <XAxis dataKey="time" stroke="#3a3a3a" tick={{fill: '#6b7280', fontSize: 10}} />
@@ -205,7 +208,7 @@ export default function Dashboard({ stats, signals, mini }) {
       {/* Distribution Chart */}
       <div className="glass-panel p-8 w-full max-w-5xl mx-auto rounded-lg mb-20 shadow-[0_0_50px_rgba(0,0,0,0.5)]">
         <h3 className="font-mono text-sm text-gray-400 uppercase tracking-widest border-b border-primary/20 pb-4 mb-8">Intelligence Cluster Distribution</h3>
-        <div className="h-64 w-full flex items-center justify-center">
+        <div className="h-64 w-full min-h-[256px] flex items-center justify-center">
           <ResponsiveContainer width="40%" height="100%">
             <PieChart>
               <Pie data={pieData} cx="50%" cy="50%" innerRadius={70} outerRadius={100} paddingAngle={2} dataKey="value" stroke="none">

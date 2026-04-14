@@ -67,7 +67,7 @@ function App() {
       <div className="absolute top-0 inset-x-0 z-50 h-14 bg-surface_lowest/80 backdrop-blur-md border-b border-primary_dim/30 flex items-center justify-between px-6">
         <div className="flex items-center gap-3">
           <div className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_8px_#99f7ff]"></div>
-          <h1 className="font-space text-xl uppercase tracking-widest text-primary glow-text">EtherMind Sys</h1>
+          <h1 className="font-space text-xl uppercase tracking-widest text-primary glow-text">NetNebula Sys</h1>
         </div>
         
         <div className="flex gap-4 font-mono text-xs uppercase tracking-widest">

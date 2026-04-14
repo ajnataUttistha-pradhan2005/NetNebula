@@ -10,7 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 const PORT = 3001;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/ethermind';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/netnebula';
 
 mongoose.connect(MONGO_URI)
   .then(() => console.log('Connected to MongoDB'))
@@ -46,8 +46,10 @@ const correlationSchema = new mongoose.Schema({
     linkId: String, 
     topicA: String,
     topicB: String,
-    urlA: String, // Store original source URL for vector A
-    urlB: String, // Store original source URL for vector B
+    sourceA_id: String, // NEW: For precision 3D matching
+    sourceB_id: String, // NEW: For precision 3D matching
+    urlA: String,
+    urlB: String,
     strength: Number, 
     llmInsight: String,
     tacticalBriefing: String,
@@ -94,29 +96,31 @@ function cosineSimilarity(vecA, vecB) {
 
 async function generateElaborateInsight(topicA, topicB, keywords, strength) {
     try {
-        const prompt = `System: You are EtherMind Tactical Intelligence. Analyze connection.
+        const prompt = `System: You are NetNebula Tactical Intelligence. Analyze this semantic relationship.
 Topic A: ${topicA}
 Topic B: ${topicB}
-Shared Vectors: ${keywords.join(', ')}
-Confidence: ${(strength * 100).toFixed(1)}%
-Provide a detailed multi-paragraph intelligence briefing (Origin, Impact Analysis, Strategy).`;
+Semantic Vector Overlap: ${keywords.join(', ')}
+Confidence Level: ${(strength * 100).toFixed(1)}%
+Provide a high-fidelity intelligence report including Origin, Impact Analysis, and Strategic Implications.`;
 
         const response = await axios.post(`${OLLAMA_URL}/api/generate`, {
             model: "phi3:mini",
             prompt: prompt,
             stream: false
-        }, { timeout: 12000 });
+        }, { timeout: 8000 }); // SHORTER TIMEOUT FOR STABILITY
 
+        if (response.status !== 200) throw new Error('Ollama Error');
         return response.data.response.trim();
     } catch (e) {
-        return `Condition: Latent semantic bridge identified. \nImpact: Significant domain overlap suggests a unified narrative trajectory. \nStrategy: Intensify signal monitoring.`;
+        console.error("AI INFERENCE BYPASS: Connectivity issue or 500 from Ollama.");
+        return `Report: Statistical correlation established via shared latent vectors. \nImpact: Narrative alignment suggests emerging sectoral importance. \nStrategic Advice: Monitor for high-velocity signal divergence.`;
     }
 }
 
 async function generateTrendAnalysis(topic, category) {
     try {
-        const prompt = `System: You are EtherMind Insight. Analyze trending topic: ${topic}. 
-Explain its momentum and outlook in 3 informative sentences using tactical terminology.`;
+        const prompt = `System: You are NetNebula Insight. Topic analysis: ${topic}. 
+Briefly explain its current momentum and sector outlook.`;
         const response = await axios.post(`${OLLAMA_URL}/api/generate`, {
             model: "phi3:mini",
             prompt: prompt,
@@ -124,7 +128,7 @@ Explain its momentum and outlook in 3 informative sentences using tactical termi
         }, { timeout: 10000 });
         return response.data.response.trim();
     } catch (e) {
-        return `Analysis current unavailable. Momentum indicates sustained sectoral growth.`;
+        return `Analysis briefing deferred. Momentum indicates active domain growth.`;
     }
 }
 
@@ -196,7 +200,7 @@ async function processSignal(source, title, value, category, url) {
 }
 
 async function computeCorrelations() {
-    const recent = inMemorySignals.slice(0, 25);
+    const recent = inMemorySignals.slice(0, 30); // Slightly larger window
     if (recent.length < 2) return;
     const globalTfidf = new TfIdf();
     recent.forEach(s => globalTfidf.addDocument(s.title));
@@ -205,22 +209,31 @@ async function computeCorrelations() {
         for (let j = i + 1; j < recent.length; j++) {
             const s1 = recent[i];
             const s2 = recent[j];
-            if (s1.clusterId !== s2.clusterId) continue; 
+            
+            // FIX: Prevent Self-Linkage or Title-Duplicate Overlap
+            if (s1._id.toString() === s2._id.toString() || s1.title.trim().toLowerCase() === s2.title.trim().toLowerCase()) continue;
+
             const vecA = {};
             globalTfidf.listTerms(i).forEach(t => vecA[t.term] = t.tfidf);
             const vecB = {};
             globalTfidf.listTerms(j).forEach(t => vecB[t.term] = t.tfidf);
             const similarity = cosineSimilarity(vecA, vecB);
             
-            if (similarity > 0.25) {
-                const linkId = [s1.title.trim(), s2.title.trim()].sort().join('::');
+            // INCREASED THRESHOLD FOR BETTER LEGITIMACY (0.35)
+            if (similarity > 0.35) {
+                const linkId = [s1._id.toString(), s2._id.toString()].sort().join('::');
                 const existing = await Correlation.findOne({ linkId });
                 if (!existing) {
                     const sharedKeywords = s1.keywords.filter(k => s2.keywords.includes(k));
+                    
+                    // Optimized: Only generate LLM insight here if legitimate
                     const briefing = await generateElaborateInsight(s1.title, s2.title, sharedKeywords, similarity);
+                    
                     await Correlation.create({
-                        linkId, topicA: s1.title.trim(), topicB: s2.title.trim(), 
-                        urlA: s1.url, urlB: s2.url, // PERSIST SOURCES
+                        linkId, 
+                        topicA: s1.title.trim(), topicB: s2.title.trim(), 
+                        sourceA_id: s1._id.toString(), sourceB_id: s2._id.toString(),
+                        urlA: s1.url, urlB: s2.url,
                         strength: similarity,
                         llmInsight: briefing.split('\n')[0],
                         tacticalBriefing: briefing
@@ -234,7 +247,7 @@ async function computeCorrelations() {
 async function fetchReddit() {
     try {
         const response = await axios.get('https://www.reddit.com/r/all/new.json?limit=5', {
-            headers: { 'User-Agent': 'EtherMind/1.3.1' }, timeout: 5000
+            headers: { 'User-Agent': 'NetNebula/2.4.1' }, timeout: 5000
         });
         const posts = response.data.data.children;
         for (const post of posts) {
@@ -267,7 +280,7 @@ async function fetchCrypto() {
         const response = await axios.get('https://api.coingecko.com/api/v3/search/trending', { timeout: 5000 });
         for (const coin of response.data.coins.slice(0, 5)) {
             const data = coin.item;
-            const value = (20 - data.score) * 100; // Trending rank weight
+            const value = (20 - data.score) * 100;
             await processSignal("coingecko", `Trending: ${data.name} (${data.symbol})`, value, "crypto", `https://www.coingecko.com/en/coins/${data.id}`);
         }
     } catch (e) {}
@@ -275,9 +288,7 @@ async function fetchCrypto() {
 
 setInterval(async () => {
     if (mongoose.connection.readyState !== 1) return;
-    await fetchReddit();
-    await fetchHackerNews();
-    await fetchCrypto();
+    await fetchReddit(); await fetchHackerNews(); await fetchCrypto();
     await computeCorrelations();
 }, 25000);
 
@@ -290,8 +301,7 @@ app.get('/api/anomalies', async (req, res) => res.json(await Anomaly.find().sort
 app.get('/api/correlations', async (req, res) => res.json(await Correlation.find().sort({ timestamp: -1 }).limit(10)));
 app.get('/api/stats', async (req, res) => {
     const trends = await Trend.find().sort({ currentAttention: -1 }).limit(10);
-    // SYNC COUNT WITH MEMORY BUFFER
     res.json({ totalSignalsProcessed: inMemorySignals.length, anomalyCount: await Anomaly.countDocuments(), correlationCount: await Correlation.countDocuments(), topTrending: trends[0]?.topic || "Optimizing...", trends });
 });
 
-app.listen(PORT, '0.0.0.0', () => console.log(`Neural Backend V1.3.1 Active: ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => console.log(`NetNebula Intelligence Backend V2.4.1 Active: ${PORT}`));

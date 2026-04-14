@@ -1,6 +1,6 @@
 {
-  "name": "backend",
-  "version": "1.0.0",
+  "name": "netnebula-backend",
+  "version": "2.4.1",
   "description": "",
   "main": "server.js",
   "scripts": {
