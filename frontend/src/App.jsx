@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import axios from 'axios';
 import NeuralField from './components/NeuralField';
 import Dashboard from './components/Dashboard';
@@ -56,12 +57,19 @@ function App() {
     return () => clearInterval(interval);
   }, []);
 
+  const handleSplashComplete = useCallback(() => setShowSplash(false), []);
+
   if (showSplash) {
-    return <SplashScreen onComplete={() => setShowSplash(false)} />;
+    return <SplashScreen onComplete={handleSplashComplete} />;
   }
 
   return (
-    <div className="relative w-screen h-screen bg-background overflow-hidden font-inter text-gray-200 flex flex-col animate-in fade-in duration-1000">
+    <motion.div
+      className="relative w-screen h-screen bg-background overflow-hidden font-inter text-gray-200 flex flex-col"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8, ease: 'easeOut' }}
+    >
       
       {/* Top Tab Bar */}
       <div className="absolute top-0 inset-x-0 z-50 h-14 bg-surface_lowest/80 backdrop-blur-md border-b border-primary_dim/30 flex items-center justify-between px-6">
@@ -118,7 +126,7 @@ function App() {
         )}
       </div>
 
-    </div>
+    </motion.div>
   );
 }
 
