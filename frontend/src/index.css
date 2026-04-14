@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-gray-200 font-inter m-0 p-0 overflow-hidden;
+    background-image: 
+      linear-gradient(rgba(58, 58, 58, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(58, 58, 58, 0.05) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply bg-surface_low/40 backdrop-blur-[20px] border border-outline_variant/15;
+  }
+
+  .glow-text {
+    text-shadow: 0 0 10px rgba(153, 247, 255, 0.3);
+  }
+
+  .glow-box {
+    box-shadow: 0 0 40px rgba(153, 247, 255, 0.05);
+  }
+  
+  .tech-clip {
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+  }
+
+  /* Scanline effect */
+  .scanline {
+    width: 100%;
+    height: 100px;
+    z-index: 50;
+    position: absolute;
+    pointer-events: none;
+    background: linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(153,247,255,0.02) 50%, rgba(0,0,0,0) 100%);
+    opacity: 0.1;
+  }
+
+  .blink-anim {
+    animation: blinker 1.5s linear infinite;
+  }
+
+  .hidden-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hidden-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
+}

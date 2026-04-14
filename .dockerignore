@@ -1,0 +1,47 @@
+# Dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Git
+.git
+.gitignore
+
+# Environment files
+.env
+.env.*
+
+# Build output
+dist
+build
+frontend/build
+frontend/dist
+
+# Local development files
+.vscode
+.idea
+.DS_Store
+
+# Docker files
+Dockerfile
+docker-compose.yml
+docker-compose.override.yml
+
+# Tests
+coverage
+
+# Docs
+README.md
+*.md
+
+# Logs
+logs
+*.log
+
+# Cache
+.cache
+.tmp
+temp
+
+# Source maps (optional)
+*.map

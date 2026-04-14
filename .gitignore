@@ -1,0 +1,60 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Build outputs
+dist/
+build/
+out/
+
+# React / frontend build
+frontend/build/
+frontend/dist/
+
+# Logs
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+
+# Coverage reports
+coverage/
+
+# Docker
+docker-compose.override.yml
+
+# Temporary files
+tmp/
+temp/
+
+# MongoDB dump files (if any)
+*.archive
+*.bson
+
+# Runtime
+*.pid
+*.seed
+*.pid.lock
+
+# Next.js (if ever used)
+.next/
+
+# Misc
+*.swp
+*.swo
