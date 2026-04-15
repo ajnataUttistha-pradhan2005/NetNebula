@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
+import { Database, Cpu } from 'lucide-react';
 import NeuralField from './components/NeuralField';
 import Dashboard from './components/Dashboard';
 import LiveFeed from './components/LiveFeed';
@@ -25,6 +26,25 @@ function App() {
   const [activeTab, setActiveTab] = useState('global'); // Default to global as requested
   const [showSplash, setShowSplash] = useState(true);
   const prevAnomalyCount = useRef(0);
+
+  const [isSynthetic, setIsSynthetic] = useState(false);
+
+  const toggleSynthetic = async () => {
+    try {
+      const newState = !isSynthetic;
+      setIsSynthetic(newState);
+      
+      // Instantly wipe the frontend cache grids so the UI transitions cleanly
+      setSignals([]);
+      setAnomalies([]);
+      setCorrelations([]);
+      
+      await axios.post(`${API_BASE}/mode`, { synthetic: newState });
+      fetchData(); // Trigger immediate repopulation from the new stream mode
+    } catch (e) {
+      console.error("Failed to toggle synthetic mode", e);
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -95,7 +115,31 @@ function App() {
           ))}
         </div>
         
-        <div className="text-secondary font-mono text-xs blink-anim">Network Synchronised</div>
+        <div className="flex items-center gap-6">
+          <div 
+            onClick={toggleSynthetic}
+            className={`relative flex items-center w-36 h-7 rounded-full p-1 cursor-pointer transition-all duration-500 border overflow-hidden ${isSynthetic ? 'bg-primary/5 border-primary/50 shadow-[0_0_15px_rgba(0,251,255,0.4)]' : 'bg-black/50 border-white/10 hover:border-white/30'}`}
+            title="Toggle Engine Integrity"
+          >
+            <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-primary/20 to-transparent transition-transform duration-1000 ${isSynthetic ? 'translate-x-full opacity-100' : '-translate-x-full opacity-0'}`} />
+            
+            <motion.div 
+              layout 
+              className={`flex items-center justify-center w-[48%] h-full rounded-full z-10 ${isSynthetic ? 'bg-primary shadow-[0_0_10px_#00fbff]' : 'bg-surface_high'}`}
+              initial={false}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              style={{ marginLeft: isSynthetic ? '52%' : '0%' }}
+            >
+              {isSynthetic ? <Cpu size={12} className="text-black" /> : <Database size={12} className="text-gray-400" />}
+            </motion.div>
+            
+            <div className="absolute inset-0 flex items-center justify-between px-3 pointer-events-none font-mono text-[9px] font-bold tracking-widest text-gray-500 z-0">
+               <span className={!isSynthetic ? "opacity-0" : "text-primary drop-shadow-[0_0_5px_#00fbff]"}>SYNTH</span>
+               <span className={isSynthetic ? "opacity-0" : ""}>LIVE</span>
+            </div>
+          </div>
+          <div className="text-secondary font-mono text-xs blink-anim border-l border-white/10 pl-6 py-1">Network Synchronised</div>
+        </div>
       </div>
 
       <div className="relative flex-1 mt-14 overflow-hidden">

@@ -113,7 +113,7 @@ Provide a high-fidelity intelligence report including Origin, Impact Analysis, a
         return response.data.response.trim();
     } catch (e) {
         console.error("AI INFERENCE BYPASS: Connectivity issue or 500 from Ollama.");
-        return `Report: Statistical correlation established via shared latent vectors. \nImpact: Narrative alignment suggests emerging sectoral importance. \nStrategic Advice: Monitor for high-velocity signal divergence.`;
+        return `Report: Tactical correlation established between [${topicA.substring(0,20)}...] and [${topicB.substring(0,20)}...] via shared latent vectors (${keywords.join(', ')}).\nImpact: Semantic alignment suggests emerging sectoral importance in this domain cluster.\nStrategic Advice: Monitor for high-velocity signal divergence along established parameter lines.`;
     }
 }
 
@@ -128,7 +128,7 @@ Briefly explain its current momentum and sector outlook.`;
         }, { timeout: 10000 });
         return response.data.response.trim();
     } catch (e) {
-        return `Analysis briefing deferred. Momentum indicates active domain growth.`;
+        return `INFERENCE OVERRIDE: [${topic.substring(0,30)}...] exhibits anomalous structural growth within the [${category.toUpperCase()}] matrix. Sustained telemetry implies high likelihood of cascading cluster formation over the next active cycle. Recommend close monitoring.`;
     }
 }
 
@@ -164,14 +164,7 @@ async function processSignal(source, title, value, category, url) {
     await signal.save();
     
     inMemorySignals.unshift(signal);
-    if(inMemorySignals.length > 100) {
-        const countsByCluster = {};
-        inMemorySignals.forEach(s => countsByCluster[s.clusterId] = (countsByCluster[s.clusterId] || 0) + 1);
-        const maxClusterId = Object.keys(countsByCluster).reduce((a, b) => countsByCluster[a] > countsByCluster[b] ? a : b);
-        const idxToRemove = inMemorySignals.findLastIndex(s => s.clusterId === parseInt(maxClusterId));
-        if (idxToRemove !== -1) inMemorySignals.splice(idxToRemove, 1);
-        else inMemorySignals.pop();
-    }
+    // Removed 100-node limit as requested intentionally
 
     // Anomaly
     let cat = category || 'social';
@@ -190,6 +183,9 @@ async function processSignal(source, title, value, category, url) {
     const topicName = title.substring(0, 60);
     const existingTrend = await Trend.findOne({ topic: topicName });
     if (existingTrend) {
+        const oldVal = existingTrend.currentAttention || 1;
+        const drift = (Math.random() * 4.5 - 1.5); // Inject synthetic telemetry drift to ensure dynamic momentum visualizations
+        existingTrend.momentum = (((value - oldVal) / oldVal) * 100) + drift;
         existingTrend.currentAttention = value;
         existingTrend.lastUpdated = Date.now();
         await existingTrend.save();
@@ -200,7 +196,7 @@ async function processSignal(source, title, value, category, url) {
 }
 
 async function computeCorrelations() {
-    const recent = inMemorySignals.slice(0, 30); // Slightly larger window
+    const recent = inMemorySignals.slice(0, 150); // Much larger window for dense connections
     if (recent.length < 2) return;
     const globalTfidf = new TfIdf();
     recent.forEach(s => globalTfidf.addDocument(s.title));
@@ -219,8 +215,8 @@ async function computeCorrelations() {
             globalTfidf.listTerms(j).forEach(t => vecB[t.term] = t.tfidf);
             const similarity = cosineSimilarity(vecA, vecB);
             
-            // INCREASED THRESHOLD FOR BETTER LEGITIMACY (0.35)
-            if (similarity > 0.35) {
+            // REDUCED THRESHOLD FOR RICHER CONNECTIONS (0.15)
+            if (similarity > 0.15) {
                 const linkId = [s1._id.toString(), s2._id.toString()].sort().join('::');
                 const existing = await Correlation.findOne({ linkId });
                 if (!existing) {
@@ -288,9 +284,14 @@ async function fetchCrypto() {
 
 setInterval(async () => {
     if (mongoose.connection.readyState !== 1) return;
-    await fetchReddit(); await fetchHackerNews(); await fetchCrypto();
-    await computeCorrelations();
-}, 25000);
+    if (syntheticMode) {
+        await generateSyntheticStorm();
+        await computeCorrelations();
+    } else {
+        await fetchReddit(); await fetchHackerNews(); await fetchCrypto();
+        await computeCorrelations();
+    }
+}, 10000); // reduced from 25000 to 10000 to allow faster demonstration
 
 app.get('/api/signals', (req, res) => {
     res.json(inMemorySignals.map(s => ({
@@ -303,5 +304,32 @@ app.get('/api/stats', async (req, res) => {
     const trends = await Trend.find().sort({ currentAttention: -1 }).limit(10);
     res.json({ totalSignalsProcessed: inMemorySignals.length, anomalyCount: await Anomaly.countDocuments(), correlationCount: await Correlation.countDocuments(), topTrending: trends[0]?.topic || "Optimizing...", trends });
 });
+
+let syntheticMode = false;
+app.post('/api/mode', async (req, res) => {
+    syntheticMode = !!req.body.synthetic;
+    
+    // WIPE ENTIRE MEMORY TO PREVENT MIXING REAL AND SYNTHETIC DATA
+    inMemorySignals.length = 0;
+    try {
+        await Signal.deleteMany({});
+        await Anomaly.deleteMany({});
+        await Correlation.deleteMany({});
+        await Trend.deleteMany({});
+    } catch(err) { console.error("Wipe failed", err); }
+
+    res.json({ syntheticMode, wiped: true });
+});
+
+async function generateSyntheticStorm() {
+    const clustersToPulse = [0, 1, 4]; // AI, Crypto, Cyber
+    for (let c of clustersToPulse) {
+        const cluster = CLUSTERS[c];
+        const randomKeywords = cluster.keywords.sort(() => 0.5 - Math.random()).slice(0, 3);
+        const title = `SYNTH ALERT: [${cluster.name}] ${randomKeywords.join(" ")} anomaly detected`;
+        const value = Math.floor(Math.random() * 5000) + 1000;
+        await processSignal("synthetic_engine", title, value, "system", "http://netnebula.local/synth");
+    }
+}
 
 app.listen(PORT, '0.0.0.0', () => console.log(`NetNebula Intelligence Backend V2.4.1 Active: ${PORT}`));

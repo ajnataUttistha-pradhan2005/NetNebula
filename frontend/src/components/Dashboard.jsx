@@ -37,10 +37,16 @@ const KPICard = ({ title, value, icon: Icon, colorClass, url, tooltip }) => {
 export default function Dashboard({ stats, signals, mini }) {
   const [expandedTrendIndex, setExpandedTrendIndex] = React.useState(null);
   
-  const volumeData = [...signals].reverse().map((s, i) => ({
-    time: new Date(s.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-    value: s.value
-  })).slice(-20);
+  const rawData = [...signals].reverse();
+  const volumeData = rawData.map((s, i, arr) => {
+    // 3-point moving average to smooth the violent noise spikes into a cohesive velocity line
+    const window = arr.slice(Math.max(0, i - 2), i + 1);
+    const avgValue = window.reduce((sum, item) => sum + item.value, 0) / window.length;
+    return {
+      time: new Date(s.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+      value: avgValue
+    }
+  }).slice(-40);
 
   const clusterCounts = signals.reduce((acc, s) => {
     const clusterName = CLUSTER_CONFIG[s.clusterId]?.name || "UNCLASSIFIED";
