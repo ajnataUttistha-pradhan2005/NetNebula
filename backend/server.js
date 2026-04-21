@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const { Ollama } = require('ollama');
 const axios = require('axios');
 const mongoose = require('mongoose');
 const natural = require('natural');
@@ -18,6 +19,44 @@ mongoose.connect(MONGO_URI)
 
 const expireAfterSeconds = 86400; // 24 hours
 const OLLAMA_URL = process.env.OLLAMA_URL || 'http://ollama:11434';
+const ollama = new Ollama({ host: OLLAMA_URL });
+
+// === INFERENCE QUEUE SYSTEM ===
+class InferenceQueue {
+    constructor() {
+        this.queue = [];
+        this.processing = false;
+    }
+
+    async add(task) {
+        return new Promise((resolve, reject) => {
+            this.queue.push({ task, resolve, reject });
+            this.process();
+        });
+    }
+
+    async process() {
+        if (this.processing || this.queue.length === 0) return;
+        this.processing = true;
+        
+        const { task, resolve, reject } = this.queue.shift();
+        console.log(`[AI Queue] Processing task. Remaining: ${this.queue.length}`);
+        try {
+            const result = await task();
+            resolve(result);
+        } catch (error) {
+            console.error(`[AI Queue] Task failed:`, error.message);
+            reject(error);
+        } finally {
+            this.processing = false;
+            console.log(`[AI Queue] Task finished.`);
+            // Small delay to prevent hammering the service
+            setTimeout(() => this.process(), 500);
+        }
+    }
+}
+
+const aiQueue = new InferenceQueue();
 
 const signalSchema = new mongoose.Schema({
     source: String,
@@ -95,41 +134,49 @@ function cosineSimilarity(vecA, vecB) {
 }
 
 async function generateElaborateInsight(topicA, topicB, keywords, strength) {
-    try {
-        const prompt = `System: You are NetNebula Tactical Intelligence. Analyze this semantic relationship.
+    return aiQueue.add(async () => {
+        try {
+            const prompt = `System: You are NetNebula Tactical Intelligence. Analyze this semantic relationship.
 Topic A: ${topicA}
 Topic B: ${topicB}
 Semantic Vector Overlap: ${keywords.join(', ')}
 Confidence Level: ${(strength * 100).toFixed(1)}%
 Provide a high-fidelity intelligence report including Origin, Impact Analysis, and Strategic Implications.`;
 
-        const response = await axios.post(`${OLLAMA_URL}/api/generate`, {
-            model: "phi3:mini",
-            prompt: prompt,
-            stream: false
-        }, { timeout: 8000 }); // SHORTER TIMEOUT FOR STABILITY
+            console.log(`[AI] Generating elaborate insight for ${topicA} & ${topicB}...`);
+            const response = await ollama.chat({
+                model: "llama3.2:1b",
+                messages: [{ role: "user", content: prompt }],
+                stream: false
+            });
 
-        if (response.status !== 200) throw new Error('Ollama Error');
-        return response.data.response.trim();
-    } catch (e) {
-        console.error("AI INFERENCE BYPASS: Connectivity issue or 500 from Ollama.");
-        return `Report: Tactical correlation established between [${topicA.substring(0,20)}...] and [${topicB.substring(0,20)}...] via shared latent vectors (${keywords.join(', ')}).\nImpact: Semantic alignment suggests emerging sectoral importance in this domain cluster.\nStrategic Advice: Monitor for high-velocity signal divergence along established parameter lines.`;
-    }
+            console.log(`[AI] Successfully generated insight.`);
+            return response.message.content.trim();
+        } catch (e) {
+            console.error("[AI] Error:", e.message);
+            return `Report: Tactical correlation established between [${topicA.substring(0,20)}...] and [${topicB.substring(0,20)}...] via shared latent vectors (${keywords.join(', ')}).\nImpact: Semantic alignment suggests emerging sectoral importance in this domain cluster.\nStrategic Advice: Monitor for high-velocity signal divergence along established parameter lines.`;
+        }
+    });
 }
 
 async function generateTrendAnalysis(topic, category) {
-    try {
-        const prompt = `System: You are NetNebula Insight. Topic analysis: ${topic}. 
+    return aiQueue.add(async () => {
+        try {
+            const prompt = `System: You are NetNebula Insight. Topic analysis: ${topic}. 
 Briefly explain its current momentum and sector outlook.`;
-        const response = await axios.post(`${OLLAMA_URL}/api/generate`, {
-            model: "phi3:mini",
-            prompt: prompt,
-            stream: false
-        }, { timeout: 10000 });
-        return response.data.response.trim();
-    } catch (e) {
-        return `INFERENCE OVERRIDE: [${topic.substring(0,30)}...] exhibits anomalous structural growth within the [${category.toUpperCase()}] matrix. Sustained telemetry implies high likelihood of cascading cluster formation over the next active cycle. Recommend close monitoring.`;
-    }
+            console.log(`[AI] Generating trend analysis for ${topic}...`);
+            const response = await ollama.chat({
+                model: "llama3.2:1b",
+                messages: [{ role: "user", content: prompt }],
+                stream: false
+            });
+            console.log(`[AI] Successfully generated trend analysis.`);
+            return response.message.content.trim();
+        } catch (e) {
+            console.error("[AI] Trend Error:", e.message);
+            return `INFERENCE OVERRIDE: [${topic.substring(0,30)}...] exhibits anomalous structural growth within the [${category.toUpperCase()}] matrix. Sustained telemetry implies high likelihood of cascading cluster formation over the next active cycle. Recommend close monitoring.`;
+        }
+    });
 }
 
 function getClusterForTitle(title) {
@@ -196,7 +243,7 @@ async function processSignal(source, title, value, category, url) {
 }
 
 async function computeCorrelations() {
-    const recent = inMemorySignals.slice(0, 150); // Much larger window for dense connections
+    const recent = inMemorySignals.slice(0, 50); // Reduced from 150 to 50 for stability
     if (recent.length < 2) return;
     const globalTfidf = new TfIdf();
     recent.forEach(s => globalTfidf.addDocument(s.title));
@@ -222,8 +269,14 @@ async function computeCorrelations() {
                 if (!existing) {
                     const sharedKeywords = s1.keywords.filter(k => s2.keywords.includes(k));
                     
-                    // Optimized: Only generate LLM insight here if legitimate
-                    const briefing = await generateElaborateInsight(s1.title, s2.title, sharedKeywords, similarity);
+                    // Optimized: Only generate AI insights for the first 5 new correlations per cycle
+                    const currentCycleInsights = await Correlation.countDocuments({ timestamp: { $gt: new Date(Date.now() - 30000) } });
+                    let briefing = "";
+                    if (currentCycleInsights < 3) {
+                         briefing = await generateElaborateInsight(s1.title, s2.title, sharedKeywords, similarity);
+                    } else {
+                         briefing = `Analysis Pending: Semantic match detected between [${s1.title.substring(0,20)}] and [${s2.title.substring(0,20)}]. Detailed intelligence queued for next active cycle.`;
+                    }
                     
                     await Correlation.create({
                         linkId, 
@@ -300,6 +353,14 @@ app.get('/api/signals', (req, res) => {
 });
 app.get('/api/anomalies', async (req, res) => res.json(await Anomaly.find().sort({ timestamp: -1 }).limit(30)));
 app.get('/api/correlations', async (req, res) => res.json(await Correlation.find().sort({ timestamp: -1 }).limit(10)));
+app.get('/api/test-ai', async (req, res) => {
+    try {
+        const result = await generateTrendAnalysis("Quantum Computing Trends", "AI/Tech");
+        res.json({ success: true, result });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
 app.get('/api/stats', async (req, res) => {
     const trends = await Trend.find().sort({ currentAttention: -1 }).limit(10);
     res.json({ totalSignalsProcessed: inMemorySignals.length, anomalyCount: await Anomaly.countDocuments(), correlationCount: await Correlation.countDocuments(), topTrending: trends[0]?.topic || "Optimizing...", trends });
