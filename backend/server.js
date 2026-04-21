@@ -243,7 +243,7 @@ async function processSignal(source, title, value, category, url) {
 }
 
 async function computeCorrelations() {
-    const recent = inMemorySignals.slice(0, 50); // Reduced from 150 to 50 for stability
+    const recent = inMemorySignals.slice(0, 150); // Reduced from 150 to 50 for stability
     if (recent.length < 2) return;
     const globalTfidf = new TfIdf();
     recent.forEach(s => globalTfidf.addDocument(s.title));
