@@ -115,7 +115,7 @@ const ConnectionCard = ({ correlation }) => {
   );
 };
 
-export default function InsightPanel({ correlations }) {
+export default function InsightPanel({ correlations, stats }) {
   return (
     <div className="flex flex-col h-full p-8 absolute inset-0 z-10 bg-background/90 backdrop-blur-sm pointer-events-auto overflow-hidden">
       <div className="w-full max-w-4xl mx-auto flex flex-col h-full">
@@ -129,8 +129,8 @@ export default function InsightPanel({ correlations }) {
             </p>
           </div>
           <div className="flex flex-col items-end">
-             <div className="text-2xl font-space font-bold text-gray-200">{correlations.length}</div>
-             <div className="text-[10px] font-mono text-gray-500">IDENTIFIED LINKS</div>
+             <div className="text-2xl font-space font-bold text-gray-200">{stats?.correlationCount || correlations.length}</div>
+             <div className="text-[10px] font-mono text-gray-500">TOTAL IDENTIFIED LINKS</div>
           </div>
         </div>
 

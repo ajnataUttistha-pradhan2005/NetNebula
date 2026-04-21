@@ -34,6 +34,24 @@ const KPICard = ({ title, value, icon: Icon, colorClass, url, tooltip }) => {
   ) : CardContent;
 };
 
+const TrendAnalysisDisplay = ({ analysis, clusterColor }) => {
+    return (
+        <div className="bg-white/5 p-5 rounded-2xl border border-white/10 relative overflow-hidden group/momentum animate-in fade-in duration-700">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: clusterColor }} />
+              <span className="text-[10px] text-primary uppercase tracking-[0.2em] font-black italic">Tactical Briefing</span>
+            </div>
+            <p className="text-sm text-gray-200 font-inter leading-relaxed relative z-10 antialiased italic">
+                {analysis || 'Intelligence ingestion in progress. Neural patterns are currently stabilizing across the cluster matrix...'}
+            </p>
+            <div className="absolute top-0 left-0 w-1 h-full opacity-50" style={{ backgroundColor: clusterColor }} />
+            <div className="absolute top-0 right-0 p-2 opacity-5">
+              <Zap size={40} />
+            </div>
+        </div>
+    );
+};
+
 export default function Dashboard({ stats, signals, mini }) {
   const [expandedTrendIndex, setExpandedTrendIndex] = React.useState(null);
   
@@ -177,15 +195,13 @@ export default function Dashboard({ stats, signals, mini }) {
 
                         {/* Elaborate AI Analysis Section */}
                         <div className="mt-8 flex flex-col gap-4">
-                           <div className="p-6 bg-primary/5 border border-primary/20 rounded-2xl relative overflow-hidden group/brief">
-                             <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-4 flex items-center gap-2">
-                               <Zap size={14} className="animate-pulse" /> Tactical Intelligence Briefing
-                             </h4>
-                             <p className="text-sm text-gray-300 leading-relaxed font-inter">
-                               {t.analysis || `Inference engine indicates Topic is an active focal point in the ${cluster.name} neural cluster. System indicates high relative attention score with semantic overlap suggesting sustained growth.`}
-                             </p>
-                             <div className="absolute -top-12 -right-12 w-32 h-32 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-                           </div>
+                            <div className="p-6 bg-primary/5 border border-primary/20 rounded-2xl relative overflow-hidden group/brief">
+                              <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-4 flex items-center gap-2">
+                                <Zap size={14} className="animate-pulse" /> Tactical Intelligence Briefing
+                              </h4>
+                              <TrendAnalysisDisplay analysis={t.analysis} clusterColor={cluster.color} />
+                              <div className="absolute -top-12 -right-12 w-32 h-32 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+                            </div>
 
                            {
                              (t.url || true) && (
