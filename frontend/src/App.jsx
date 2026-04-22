@@ -8,7 +8,7 @@ import LiveFeed from './components/LiveFeed';
 import InsightPanel from './components/InsightPanel';
 import SplashScreen from './components/SplashScreen';
 
-const API_BASE = "http://13.53.132.219:3001/api";
+const API_BASE = "http://16.171.141.118:3001/api";
 
 function App() {
   const [signals, setSignals] = useState([]);
