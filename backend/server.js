@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 const PORT = 3001;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://16.171.141.118:27017/netnebula';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/netnebula';
 
 mongoose.connect(MONGO_URI)
     .then(() => console.log('Connected to MongoDB'))
@@ -435,7 +435,7 @@ app.get('/api/signals', async (req, res) => {
         // 2. Prioritize these nodes if they are in memory, or fetch from DB if they rotated out
         const prioritizedSignals = inMemorySignals.filter(s => criticalNodeIds.has(s._id.toString()));
         const prioritizedIds = new Set(prioritizedSignals.map(s => s._id.toString()));
-        
+
         // 3. For any critical IDs missing from memory, pull from DB to ensure Map Parity
         const missingIds = [...criticalNodeIds].filter(id => !prioritizedIds.has(id));
         if (missingIds.length > 0) {
@@ -446,7 +446,7 @@ app.get('/api/signals', async (req, res) => {
         // 4. Fill the rest with top-attention signals from memory (up to 150 nodes for stability)
         const currentIds = new Set(prioritizedSignals.map(s => s._id.toString()));
         const filler = inMemorySignals.filter(s => !currentIds.has(s._id.toString())).slice(0, 150 - prioritizedSignals.length);
-        
+
         const finalPayload = [...prioritizedSignals, ...filler];
 
         res.json(finalPayload.map(s => ({

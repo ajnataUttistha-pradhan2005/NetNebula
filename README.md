@@ -2,6 +2,14 @@
   <img src="./frontend/src/assets/NetNebula-favicon.png" alt="NetNebula Logo" width="150"/>
   <h1>NetNebula</h1>
   <p><strong>A living cyber intelligence brain visualizing global digital consciousness in real time.</strong></p>
+  
+  <p>
+    <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" />
+    <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" />
+    <img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" />
+    <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
+    <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" />
+  </p>
 </div>
 
 ---
@@ -11,6 +19,43 @@
 **NetNebula** is a real-time data analysis and visualization web application that transforms live internet data into an **interactive neural-like system**. The purpose of the application is to help users **understand global digital activity instantly** by visualizing trends, relationships, clusters, and anomalies in a dynamic and intuitive way.
 
 Instead of traditional dashboards, NetNebula presents data as a **living system of interconnected signals**, making complex information easier to interpret visually rather than reading raw data tables.
+
+---
+
+## 📸 Interface Preview
+
+### 📽️ Initialisation Sequence
+<div align="center">
+  <img src="./frontend/src/assets/web-app-screenshots/splashscreen.png" width="850" alt="NetNebula Splash Screen"/>
+  <p><em>The cinematic entry sequence where digital data evolves into structured intelligence.</em></p>
+</div>
+
+### 🌐 Global Attention Matrix (Neural Evolution)
+<div align="center">
+  <p>A dynamic, real-time neural field visualizing the adaptive flow of global digital consciousness.</p>
+  <img src="./frontend/src/assets/web-app-screenshots/global-attention-evolution.gif" width="850" alt="Global Attention Evolution"/>
+</div>
+
+### 📈 Trending Intelligence & Analytics
+<div align="center">
+  <p>Deep-dive analytics tracking sector momentum, signal velocity, and emerging narratives.</p>
+  <img src="./frontend/src/assets/web-app-screenshots/trending-topics-tab-1.png" width="850" alt="Trending Topics Dashboard"/>
+  <br/>
+  <br/>
+  <img src="./frontend/src/assets/web-app-screenshots/trending-topics-tab-2.png" width="850" alt="Trending Topics Details"/>
+</div>
+
+### 🔗 Semantic Connections & Anomalies
+<div align="center">
+  <p>Detecting hidden mathematical links between disparate global topics and surfacing critical system anomalies.</p>
+  <table border="0">
+    <tr>
+      <td><img src="./frontend/src/assets/web-app-screenshots/connections-tab-1.png" width="415" alt="Connection Logic"/></td>
+      <td><img src="./frontend/src/assets/web-app-screenshots/connections-tab-2.png" width="415" alt="Semantic Mapping"/></td>
+    </tr>
+  </table>
+  <img src="./frontend/src/assets/web-app-screenshots/anomalies-and-feed-tab.png" width="850" alt="Anomalies Feed"/>
+</div>
 
 ---
 
