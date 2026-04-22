@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 const PORT = 3001;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://113.53.132.219:27017/netnebula';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://13.53.132.219:27017/netnebula';
 
 mongoose.connect(MONGO_URI)
     .then(() => console.log('Connected to MongoDB'))
